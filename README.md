@@ -1,4 +1,4 @@
-# Cryptocurrency Exchange
+# Cryptocurrency Exchange (Work in Progress)
 Backend service to trade cryptocurrencies
 
 ## Features
