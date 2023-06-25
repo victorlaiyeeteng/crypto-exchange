@@ -88,6 +88,6 @@ func TestCancelOrder(t *testing.T) {
 	orderbook.PlaceLimitOrder(10_000, buyOrder)
 
 	assert(t, orderbook.BidTotalVolume(), 10.0)
-	orderbook.cancelOrder(buyOrder)
+	orderbook.CancelOrder(buyOrder)
 	assert(t, orderbook.BidTotalVolume(), 0.0)
 }

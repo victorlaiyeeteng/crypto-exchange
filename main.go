@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/victorlaiyeeteng/crypto-exchange/orderbook"
@@ -14,6 +15,7 @@ func main() {
 	ex := NewExchange()
 	e.GET("/book/:market", ex.handleGetBook)
 	e.POST("/order", ex.handlePlaceOrder)
+	e.DELETE("/order/:id", ex.cancelOrder)
 	e.Logger.Fatal(e.Start(":4000"))
 	fmt.Println("working")
 }
@@ -52,7 +54,13 @@ type PlaceOrderRequest struct {
 	Market Market
 }
 
+type CancelOrderRequest struct {
+	Bid bool
+	ID  int64
+}
+
 type Order struct {
+	ID        int64
 	Price     float64
 	Size      float64
 	Bid       bool
@@ -81,6 +89,7 @@ func (exchange *Exchange) handleGetBook(c echo.Context) error {
 	for _, limit := range ob.Asks() {
 		for _, order := range limit.Orders {
 			o := Order{
+				ID:        order.ID,
 				Price:     limit.Price,
 				Size:      order.Size,
 				Bid:       order.Bid,
@@ -93,6 +102,7 @@ func (exchange *Exchange) handleGetBook(c echo.Context) error {
 	for _, limit := range ob.Bids() {
 		for _, order := range limit.Orders {
 			o := Order{
+				ID:        order.ID,
 				Price:     limit.Price,
 				Size:      order.Size,
 				Bid:       order.Bid,
@@ -103,6 +113,37 @@ func (exchange *Exchange) handleGetBook(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, orderbookData)
+}
+
+func (exchange *Exchange) cancelOrder(c echo.Context) error {
+	idStr := c.Param("id")
+	id, _ := strconv.Atoi(idStr)
+	ob := exchange.orderbooks[MarketETH]
+	orderCancelled := false
+
+	for _, limit := range ob.Asks() {
+		for _, order := range limit.Orders {
+			if order.ID == int64(id) {
+				ob.CancelOrder(order)
+				orderCancelled = true
+			}
+			if orderCancelled {
+				return c.JSON(200, map[string]any{"msg": "order cancelled"})
+			}
+		}
+	}
+	for _, limit := range ob.Bids() {
+		for _, order := range limit.Orders {
+			if order.ID == int64(id) {
+				ob.CancelOrder(order)
+				orderCancelled = true
+			}
+			if orderCancelled {
+				return c.JSON(200, map[string]any{"msg": "order cancelled"})
+			}
+		}
+	}
+	return nil
 }
 
 func (exchange *Exchange) handlePlaceOrder(c echo.Context) error {

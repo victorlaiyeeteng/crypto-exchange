@@ -2,6 +2,7 @@ package orderbook
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
 	"time"
 )
@@ -11,6 +12,7 @@ type Order struct {
 	Bid       bool
 	Limit     *Limit
 	Timestamp int64
+	ID        int64
 }
 
 type Orders []*Order
@@ -38,6 +40,7 @@ func NewOrder(bid bool, size float64) *Order {
 		Size:      size,
 		Bid:       bid,
 		Timestamp: time.Now().UnixNano(),
+		ID:        int64(rand.Intn(10000000000)),
 	}
 }
 
@@ -253,7 +256,8 @@ func (orderbook *Orderbook) clearLimit(bid bool, limit *Limit) {
 		}
 	}
 }
-func (orderbook *Orderbook) cancelOrder(order *Order) {
+
+func (orderbook *Orderbook) CancelOrder(order *Order) {
 	limit := order.Limit
 	limit.DeleteOrder(order)
 }
