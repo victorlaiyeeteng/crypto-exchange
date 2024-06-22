@@ -1,6 +1,2 @@
-# Cryptocurrency Exchange (Work in Progress)
-Backend service to trade cryptocurrencies
-
-## Features
-#### Matching Engine
-Matches buy and sell orders in the orderbook, allowing for efficient and fair execution of trade
+# Cryptocurrency Exchange
+featuring a simple matching engine that matches buy and sell orders in the orderbook
